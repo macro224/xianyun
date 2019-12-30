@@ -117,16 +117,33 @@ export default {
     methods: {
         // 发送验证码
         handleSendCaptcha(){
-
+            // 发送axios验证码接口请求
+            this.$axios({
+                url:'/captchas',
+                method:'POST',
+                data:{
+                    tel:this.form.username
+                }
+            }).then(res=>{
+                this.$message.success('本次手机验证码为：'+res.data.code)
+                this.form.captcha=res.data.code
+            })
         },
-
-
         // 注册
         handleRegSubmit(){
         //    console.log(this.form)
             //  表单验证
             this.$refs.form.validate(vali=>{
                 if(!vali) return this.$message.success('格式输入不正确，请重新输入！')
+                // 数据改造，挑出确认密码的数据
+                const {conpassword,...data}=this.form
+                // 在vuex中实现注册功能
+                this.$store.dispatch("user/zhuce", data).then(res=>{
+                    if(res===true){
+                        this.$message.success('注册成功~')
+                        this.$emit('zhuce')
+                    }
+                })
             })
         }
     }

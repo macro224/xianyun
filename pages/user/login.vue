@@ -22,7 +22,7 @@
                 <LoginForm v-if="current == 0"/>
 
                 <!-- 注册功能组件 -->
-                <ZhuceForm v-if="current == 1"/>
+                <ZhuceForm v-if="current == 1" @zhuce="current=0"/>
             </div>
         </el-row>
     </div>

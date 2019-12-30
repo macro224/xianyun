@@ -72,17 +72,11 @@ export default {
             // 表单验证判断
             this.$refs.form.validate(valid => {
                 if(!valid) return this.$message.success('格式输入有误，请重新输入！')
-                // 发送登录请求
-                this.$axios({
-                    method:'POST',
-                    url:'/accounts/login',
-                    data:this.form
-                }).then(res=>{
-                    this.$message.success('登录成功~')
-                    // 本地存储token值
-                    localStorage.setItem('xianyun',res.data.token)
-                    // 登录成功后跳转回上一页
-                    this.$router.back()
+                // 在vuex中实现登录功能
+                this.$store.dispatch("user/login", this.form).then(res=>{
+                    if(res===true){
+                        this.$message.success('登录成功~')
+                    }
                 })
             })
         }

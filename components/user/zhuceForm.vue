@@ -18,8 +18,8 @@
                 placeholder="验证码" 
                 v-model="form.captcha">
                     <template slot="append">
-                        <el-button @click="handleSendCaptcha">
-                            发送验证码
+                        <el-button :disabled="ison" @click="handleSendCaptcha">
+                            {{btninfo}}
                         </el-button>
                     </template>
                 </el-input>
@@ -111,23 +111,42 @@ export default {
                 conpassword:[
                     { validator: validatepass, trigger: 'blur' }
                 ]
-            }
+            },
+            ison:false,
+            btninfo:'发送验证码'
         }
     },
     methods: {
         // 发送验证码
         handleSendCaptcha(){
-            // 发送axios验证码接口请求
-            this.$axios({
-                url:'/captchas',
-                method:'POST',
-                data:{
-                    tel:this.form.username
-                }
-            }).then(res=>{
-                this.$message.success('本次手机验证码为：'+res.data.code)
-                this.form.captcha=res.data.code
-            })
+            if(this.form.username.trim()!==""){
+                this.ison=true
+                this.btninfo=30
+                // 定义一个定时器
+                let yanzheng= setInterval(() => {
+                    this.btninfo--
+                    if(this.btninfo==0){
+                        // 清除定时器
+                        clearInterval(yanzheng)
+                        this.btninfo='发送验证码'
+                        this.ison=false
+                    }
+                }, 666);
+
+                // 发送axios验证码接口请求
+                this.$axios({
+                    url:'/captchas',
+                    method:'POST',
+                    data:{
+                        tel:this.form.username
+                    }
+                }).then(res=>{
+                    this.$message.success('本次手机验证码为：'+res.data.code)
+                    this.form.captcha=res.data.code
+                })
+            }else{
+                this.$message.error('请先输入手机号码')
+            }
         },
         // 注册
         handleRegSubmit(){
@@ -151,6 +170,9 @@ export default {
 </script>
 
 <style scoped lang="less">
+    .el-button{
+        width: 112px;
+    }
     .form{
         padding:25px;
     }

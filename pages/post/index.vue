@@ -1,74 +1,72 @@
 ﻿<template>
-  <section class="container">
-        <!-- <div class="sosuoBox">
-        </div> -->
-
-    <el-row type="flex" justify="space-between">
-        <el-menu collapse="true" class="el-menu-demo" mode="vertical">
-            <el-submenu index="2">
-                <el-menu-item slot="title">我的工作台</el-menu-item>
-                <el-menu-item index="2-1">选项1</el-menu-item>
-                <el-menu-item index="2-2">选项2</el-menu-item>
-                <el-menu-item index="2-3">选项3</el-menu-item>
-            </el-submenu>
-        </el-menu>
-    </el-row>
-
-  </section>
+    <section class="container">
+        <el-container>
+            <el-aside width="260px">
+                <div class="menuBox">
+                    <ul>
+                        <li>aaa <i class="el-icon-arrow-right"></i></li>
+                        <li>aaa <i class="el-icon-arrow-right"></i></li>
+                        <li>aaa <i class="el-icon-arrow-right"></i></li>
+                        <li>aaa <i class="el-icon-arrow-right"></i></li>
+                    </ul>
+                    <div class="rightbox">
+                        aaa
+                    </div>
+                </div>
+            </el-aside>
+            <el-main>Main</el-main>
+        </el-container>
+    </section>
 </template>
 
 <script>
 export default {
-  data () {
-      return {
-          current:0,
-          form:{
-            chufatime:''
-          }
-      }
-  },
-  methods:{
-    tab(i){
-      this.current=i
-    },
-    onSubmit(){
-      console.log(111);
-    }
-  }
+  
 }
 </script>
 
 <style scoped lang="less">
 .container{
-  width:1000px;
-  margin:0 auto;
-}
+    width:1000px;
+    margin:0 auto;
+    padding: 20px 0;
+    .el-aside{
+        overflow: inherit;
+        .menuBox{
+            width: 260px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            position: relative;
+            ul{
+                li{
+                    z-index: 2;
+                    height: 40px;
+                    padding: 0 20px;
+                    line-height: 40px;
+                    border-top: 1px solid #ddd;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    &:nth-child(1){
+                        border-top:none;
+                    }
+                }
+            }
 
-.sosuoBox{
-    width: 360px;
-    height: 350px;
-    border-top: none;
-    box-sizing: border-box;
-    border: 1px solid #ddd;
-    span{
-        display: inline-block;
-        width:50%;
-        height: 50px;
-        box-sizing: border-box;
-        border-top:3px #eee solid;
-        background:#eee;
-        line-height: 48px;
-        text-align: center;
-        cursor: pointer;
-        color:#666;
-        &.active{
-            border-top-color: orange;
-            background:#fff;
-            font-weight: bold;
-        }
-        i{
-            margin-right: 8px;
+            .rightbox{
+                width: 350px;
+                height: 200px;
+                padding: 10px 20px;
+                background: #fff;
+                box-sizing: border-box;
+                border: 1px solid #ddd;
+                position: absolute;
+                left: 258px;
+                top: -1px;
+                z-index: 1;
+            }
         }
     }
 }
+
 </style>

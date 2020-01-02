@@ -5,7 +5,7 @@
             <!-- 顶部过滤列表 -->
             <div class="flights-content">
                 <!-- 过滤条件 -->
-                <FlightsFilters/>
+                <FlightsFilters :data="jipiaoSon" @setJipiao="setJipiao" />
                 
                 <!-- 航班头部布局 -->
                 <FlightsListHead/>
@@ -43,7 +43,17 @@ export default {
     data(){
         return {
             // 总数据
-            jipiao:{},
+            jipiao:{
+                info:{},
+                options:{},
+                flights:{}
+            },
+            // 缓存一份总数据
+            jipiaoSon:{
+                info:{},
+                options:{},
+                flights:{}
+            },
             // 机票列表
             dataList:[],
             // 每页个数
@@ -69,16 +79,27 @@ export default {
             const start = (this.pageIndex-1)*this.pageSize
             const end=start+this.pageSize
             this.dataList=this.jipiao.flights.slice(start,end)
+        },
+        // 子组件过滤出来的机票列表
+        setJipiao(arr){
+            if(arr){    
+                this.pageIndex = 1;
+                this.jipiao.flights = arr;
+                this.jipiao.total = arr.length;
+            }
+            this.setDataList()
         }
     },
     mounted () {
+        // 调用接口获取机票总数据
         this.$axios({
             url:'/airs',
             params:this.$route.query
         }).then(res=>{
             this.jipiao=res.data
+            this.jipiaoSon={...res.data}
             // 打印总数据
-            // console.log(this.jipiao);
+            console.log(this.jipiao);
             // 打印机票列表
             // console.log(this.dataList);
             this.setDataList()

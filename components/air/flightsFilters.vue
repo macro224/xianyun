@@ -8,7 +8,7 @@
                 {{data.info.departDate}}
             </el-col>
             <el-col :span="4">
-                <el-select size="mini" v-model="airport" placeholder="起飞机场" @change="handleAirport">
+                <el-select size="mini" v-model="airport" placeholder="起飞机场" >
                     <el-option
                     v-for="(item,index) in data.options.airport" :key="index"
                     :label="item"
@@ -17,7 +17,7 @@
                 </el-select>
             </el-col>
             <el-col :span="4">
-                <el-select size="mini" v-model="flightTimes"  placeholder="起飞时间" @change="handleFlightTimes">
+                <el-select size="mini" v-model="flightTimes"  placeholder="起飞时间" >
                     <el-option
                      v-for="(item,index) in data.options.flightTimes" :key="index"
                     :label="`${item.from}:00 - ${item.to}:00`"
@@ -26,7 +26,7 @@
                 </el-select>
             </el-col>
             <el-col :span="4">
-                <el-select size="mini" v-model="company"  placeholder="航空公司" @change="handleCompany">
+                <el-select size="mini" v-model="company"  placeholder="航空公司" >
                     <el-option
                     v-for="(item,index) in data.options.company" :key="index"
                     :label="item"
@@ -35,7 +35,7 @@
                 </el-select>
             </el-col>
             <el-col :span="4">
-                <el-select size="mini" v-model="airSize" placeholder="机型" @change="handleAirSize">
+                <el-select size="mini" v-model="airSize" placeholder="机型" >
                     <el-option
                     v-for="(item,index) in model" :key="index"
                     :label="item.name"
@@ -54,6 +54,7 @@
                 撤销
     		</el-button>
         </div>
+        <span>{{shaiXuan}}</span>
     </div>
 </template>
 
@@ -78,46 +79,47 @@ export default {
             default:{}
         }
     },
+    computed: {
+        // 计算属性监听，多项筛选
+        shaiXuan(){
+            const arr=this.data.flights.filter(v=>{
+                // 符合条件的全部返回
+                let valid = true;
+                // 判断不符合条件的改为false
+                // 机场
+                if(this.airport && this.airport!==v.org_airport_name){
+                    valid=false
+                }
+                // 航空公司
+                if(this.company && this.company!==v.airline_name){
+                    valid=false
+                }
+                // 机型
+                if(this.airSize && this.airSize!==v.plane_size){
+                    valid=false
+                }
+                // 出发时间
+                if(this.flightTimes){
+                    const [from,to]=this.flightTimes.split(',')
+                    const dep=+v.dep_time.split(':')[0]
+                    if(dep<+from || dep>=+to){
+                        valid=false
+                    }
+                }
+                return valid;
+            })
+            this.$emit('setJipiao',arr)
+            return '';
+        }
+    },
     methods: {
-        // 选择机场时候触发
-        handleAirport(value){
-            const arr=this.data.flights.filter(v=>{
-                return v.org_airport_name===value
-            })
-            // console.log(arr);
-            this.$emit('setJipiao',arr)
-        },
-
-        // 选择出发时间时候触发
-        handleFlightTimes(value){
-            const [from,to]=value.split(',')
-            const arr=this.data.flights.filter(v=>{
-                return +v.dep_time.split(':')[0]>=from && +v.dep_time.split(':')[0]<to
-            })
-            this.$emit('setJipiao',arr)
-        },
-
-         // 选择航空公司时候触发
-        handleCompany(value){
-            const arr=this.data.flights.filter(v=>{
-                return v.airline_name===value
-            })
-            // console.log(arr);
-            this.$emit('setJipiao',arr)
-        },
-
-         // 选择机型时候触发
-        handleAirSize(value){
-        //    console.log(value);
-            const arr=this.data.flights.filter(v=>{
-                return v.plane_size===value
-            })
-            // console.log(arr);
-            this.$emit('setJipiao',arr)
-        },
-        
         // 撤销条件时候触发
-        handleFiltersCancel(){},
+        handleFiltersCancel(){
+            this.airport= "";       // 机场
+            this.company= "";       // 航空公司
+            this.airSize= "";       // 机型大小
+            this.flightTimes= ""    // 出发时间
+        }
     }
 }
 </script>

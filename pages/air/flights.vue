@@ -27,9 +27,7 @@
             </div>
 
             <!-- 侧边栏 -->
-            <div class="aside">
-                <!-- 侧边栏组件 -->
-            </div>
+            <FlightsAside/>
         </el-row>
     </section>
 </template>
@@ -38,6 +36,7 @@
 import FlightsListHead from '@/components/air/flightsListHead'
 import FlightsItem from '@/components/air/flightsItem'
 import FlightsFilters from '@/components/air/flightsFilters'
+import FlightsAside from '@/components/air/flightsAside'
 
 export default {
     data(){
@@ -46,67 +45,75 @@ export default {
             jipiao:{
                 info:{},
                 options:{},
-                flights:{}
+                flights:[]
             },
             // 缓存一份总数据
             jipiaoSon:{
                 info:{},
                 options:{},
-                flights:{}
+                flights:[]
             },
             // 机票列表
-            dataList:[],
+            // dataList:[],
             // 每页个数
             pageSize:5,
             // 当前页码
             pageIndex:1
         }
     },
+    // 计算属性计算监听机票列表
+    computed: {
+        dataList(){
+            if(!this.jipiao.flights) return [];
+            const end = this.pageIndex*this.pageSize
+            const start = (this.pageIndex-1)*this.pageSize
+            return this.jipiao.flights.slice(start,end)
+        }
+    },
+    // 监听
+    watch: {
+      $route(){
+        this.getJipiao();
+      }  
+    },
     methods: {
         // 每页个数
         handleSizeChange(value){
             this.pageIndex=1
             this.pageSize=value
-            this.setDataList()
         },
         // 当前页码
         handleCurrentChange(value){
             this.pageIndex=value
-            this.setDataList()
-        },
-        // 封装一个根据页数页码获取机票列表的函数
-        setDataList(){
-            const start = (this.pageIndex-1)*this.pageSize
-            const end=start+this.pageSize
-            this.dataList=this.jipiao.flights.slice(start,end)
         },
         // 子组件过滤出来的机票列表
         setJipiao(arr){
-            if(arr){    
+            if(arr){
                 this.pageIndex = 1;
                 this.jipiao.flights = arr;
                 this.jipiao.total = arr.length;
             }
-            this.setDataList()
+        },
+        // 封装一个函数获取机票总数据
+        getJipiao(){
+        // 调用接口获取机票总数据
+            this.$axios({
+                url:'/airs',
+                params:this.$route.query
+            }).then(res=>{
+                this.jipiao=res.data
+                this.jipiaoSon={...res.data}
+                // 打印总数据
+                // console.log(this.jipiao);
+                this.pageIndex = 1;
+            })
         }
     },
     mounted () {
-        // 调用接口获取机票总数据
-        this.$axios({
-            url:'/airs',
-            params:this.$route.query
-        }).then(res=>{
-            this.jipiao=res.data
-            this.jipiaoSon={...res.data}
-            // 打印总数据
-            console.log(this.jipiao);
-            // 打印机票列表
-            // console.log(this.dataList);
-            this.setDataList()
-        })
+        this.getJipiao()
     },
     components: {
-        FlightsListHead,FlightsItem,FlightsFilters
+        FlightsListHead,FlightsItem,FlightsFilters,FlightsAside
     }
 }
 </script>

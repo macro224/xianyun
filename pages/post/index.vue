@@ -1,27 +1,70 @@
 ﻿<template>
     <section class="container">
-        <el-container>
-            <el-aside width="260px">
-                <div class="menuBox">
+        <el-row justify="space-between">
+            <el-col :span="7" class="menuBox">
+                <!-- 热门城市 -->
+                <ul class="leftul">
+                    <li @mouseenter="yiru(index)" 
+                    @mouseleave="yichu(index)"
+                    v-for="(item,index) in remenList" :key="index"
+                    :class="{active:current===index?true:false}">
+                        {{item.type}} <i class="el-icon-arrow-right"></i>
+                    </li>
+                </ul>
+                <!-- 热门城市右边框 -->
+                <div class="rightbox" 
+                v-show="current===index?true:false" 
+                @mouseenter="yiru(index)" 
+                @mouseleave="yichu(index)"
+                v-for="(item,index) in remenList" :key="index">
                     <ul>
-                        <li>aaa <i class="el-icon-arrow-right"></i></li>
-                        <li>aaa <i class="el-icon-arrow-right"></i></li>
-                        <li>aaa <i class="el-icon-arrow-right"></i></li>
-                        <li>aaa <i class="el-icon-arrow-right"></i></li>
+                        <li v-for="(info,i) in item.children" :key="i">
+                            <a href="#">
+                                <i>{{i+1}}</i>
+                                <strong>{{info.city}}</strong>
+                                <span>{{info.desc}}</span>
+                            </a>
+                        </li>
                     </ul>
-                    <div class="rightbox">
-                        aaa
-                    </div>
                 </div>
-            </el-aside>
-            <el-main>Main</el-main>
-        </el-container>
+                <!-- 推荐城市 -->
+                <div class="tuijian">
+                    <h4>推荐城市</h4>
+                    <img :src="$axios.defaults.baseURL+'/images/pic_sea.jpeg'" alt="">
+                </div>
+            </el-col>
+            <el-col :span="17">Main</el-col>
+        </el-row>
     </section>
 </template>
 
 <script>
 export default {
-  
+    data () {
+        return {
+            current:'',
+            isactive:false,
+            remenList:''
+        }
+    },
+    methods: {
+        yiru(i){
+            this.current=i
+            this.isactive=!this.isactive
+        },
+        yichu(i){
+            this.current=''
+            this.isactive=!this.isactive
+        }
+    },
+    mounted () {
+        this.$axios({
+            url:'/posts/cities'
+        }).then(res=>{
+            console.log(res);
+            this.remenList=res.data.data
+        })
+    }
 }
 </script>
 
@@ -30,40 +73,69 @@ export default {
     width:1000px;
     margin:0 auto;
     padding: 20px 0;
-    .el-aside{
-        overflow: inherit;
-        .menuBox{
-            width: 260px;
-            box-sizing: border-box;
-            border: 1px solid #ddd;
+    .menuBox{
+        width: 260px;
+        box-sizing: border-box;
+        // 热门城市
+        ul.leftul{
+            border-top: 1px solid #ddd;
+            border-left: 1px solid #ddd;
             position: relative;
-            ul{
-                li{
-                    z-index: 2;
-                    height: 40px;
-                    padding: 0 20px;
-                    line-height: 40px;
-                    border-top: 1px solid #ddd;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    &:nth-child(1){
-                        border-top:none;
-                    }
+            z-index: 2;
+            li{
+                height: 40px;
+                padding: 0 20px;
+                line-height: 40px;
+                border-right: 1px solid #ddd;
+                border-bottom: 1px solid #ddd;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                &.active{
+                    color: orange;
+                    border-right-color: #fff;
                 }
             }
+        }
+        .rightbox{
+            width: 350px;
+            height: 200px;
+            padding: 10px 20px;
+            background: #fff;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            position: absolute;
+            top: 0;
+            left: 259px;
+            li{
+                font-size: 14px;
+                line-height: 36px;
+                i{
+                    font-size: 24px;
+                    color: orange;
+                    vertical-align: middle;
+                }
+                strong{
+                    margin: 0 10px;
+                    color: orange;
+                    font-weight: normal;
+                }
+                span{
+                    color: #999;
+                }
+                strong:hover,span:hover{
+                    text-decoration: underline;
+                }
+            }
+        }
 
-            .rightbox{
-                width: 350px;
-                height: 200px;
-                padding: 10px 20px;
-                background: #fff;
-                box-sizing: border-box;
-                border: 1px solid #ddd;
-                position: absolute;
-                left: 258px;
-                top: -1px;
-                z-index: 1;
+        .tuijian{
+            margin-top: 20px;
+            h4{
+                font-weight: 400;
+                margin-bottom: 10px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #ddd;
             }
         }
     }

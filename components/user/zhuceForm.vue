@@ -121,7 +121,7 @@ export default {
         handleSendCaptcha(){
             if(this.form.username.trim()!==""){
                 this.ison=true
-                this.btninfo=30
+                this.btninfo=10
                 // 定义一个定时器
                 let yanzheng= setInterval(() => {
                     this.btninfo--
@@ -133,17 +133,11 @@ export default {
                     }
                 }, 666);
 
-                // 发送axios验证码接口请求
-                this.$axios({
-                    url:'/captchas',
-                    method:'POST',
-                    data:{
-                        tel:this.form.username
-                    }
-                }).then(res=>{
-                    this.$message.success('本次手机验证码为：'+res.data.code)
-                    this.form.captcha=res.data.code
+                this.$store.dispatch('user/captchas',this.form.username).then(res=>{
+                    this.form.captcha=res
+                    this.$message.success('本次手机验证码为：'+res)
                 })
+
             }else{
                 this.$message.error('请先输入手机号码')
             }

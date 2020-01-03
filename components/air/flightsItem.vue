@@ -39,9 +39,7 @@
                             ￥{{item.settle_price}}
                         </el-col>
                         <el-col :span="3" class="choose-button">
-                            <el-button 
-                            type="warning" 
-                            size="mini">
+                            <el-button type="warning" size="mini" @click="xuanding(data.id,item.seat_xid)">
                             选定
                             </el-button>
                             <p>剩余：{{item.discount}}</p>
@@ -64,7 +62,16 @@ export default {
         // 点击显示或隐藏
         clishow(){
             this.isshow=!this.isshow
-        }  
+        },
+        // 点击选定跳转
+        xuanding(id,seat_xid){
+            this.$router.push({
+                path:'/air/order',
+                query:{
+                    id,seat_xid
+                }
+            })
+        }
     },
     computed: {
         surtime(){

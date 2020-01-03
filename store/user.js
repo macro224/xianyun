@@ -16,6 +16,20 @@ export const mutations = {
 
 // 异步修改数据--跟接口打交道
 export const actions = {
+    // 验证码
+    captchas(store,data){
+        // 发送axios验证码接口请求
+        return this.$axios({
+            url:'/captchas',
+            method:'POST',
+            data:{
+                tel:data
+            }
+        }).then(res=>{
+            return res.data.code
+        })
+    },
+
     // 登录
     login(store,data){
         // 发送登录请求
@@ -31,6 +45,7 @@ export const actions = {
             return true
         })
     },
+
     // 注册
     zhuce(store,data){
         // 发送axios登录接口请求

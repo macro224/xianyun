@@ -1,69 +1,35 @@
 ﻿<template>
     <section class="container">
-        <el-row justify="space-between">
-            <el-col :span="7" class="menuBox">
-                <!-- 热门城市 -->
-                <ul class="leftul">
-                    <li @mouseenter="yiru(index)" 
-                    @mouseleave="yichu(index)"
-                    v-for="(item,index) in remenList" :key="index"
-                    :class="{active:current===index?true:false}">
-                        {{item.type}} <i class="el-icon-arrow-right"></i>
-                    </li>
-                </ul>
-                <!-- 热门城市右边框 -->
-                <div class="rightbox" 
-                v-show="current===index?true:false" 
-                @mouseenter="yiru(index)" 
-                @mouseleave="yichu(index)"
-                v-for="(item,index) in remenList" :key="index">
-                    <ul>
-                        <li v-for="(info,i) in item.children" :key="i">
-                            <a href="#">
-                                <i>{{i+1}}</i>
-                                <strong>{{info.city}}</strong>
-                                <span>{{info.desc}}</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <!-- 推荐城市 -->
-                <div class="tuijian">
-                    <h4>推荐城市</h4>
-                    <img :src="$axios.defaults.baseURL+'/images/pic_sea.jpeg'" alt="">
-                </div>
+        <el-row type="flex" justify="space-between">
+            <el-col class="menuBox">
+                <!-- 左边栏组件 -->
+                <LeftPost/>
             </el-col>
-            <el-col :span="17">Main</el-col>
+            <el-col class="sosuoBox">
+                <el-row class="sosuo_kuang" type="flex" justify="space-between" align="middle">
+                    <input type="text" placeholder="请输入想去的地方，比如：'广州'">
+                    <i class="el-icon-search"></i>
+                </el-row>
+                <div class="sosuo_tuijian">
+                    推荐：
+                    <span><a href="#">广州</a></span>
+                    <span><a href="#">上海</a></span>
+                    <span><a href="#">北京</a></span>
+                </div>
+                <!-- 右边栏组件 -->
+                <RightPost/>
+            </el-col>
         </el-row>
     </section>
 </template>
 
 <script>
+import LeftPost from '@/components/post/leftPost'
+import RightPost from '@/components/post/rightPost'
+
 export default {
-    data () {
-        return {
-            current:'',
-            isactive:false,
-            remenList:''
-        }
-    },
-    methods: {
-        yiru(i){
-            this.current=i
-            this.isactive=!this.isactive
-        },
-        yichu(i){
-            this.current=''
-            this.isactive=!this.isactive
-        }
-    },
-    mounted () {
-        this.$axios({
-            url:'/posts/cities'
-        }).then(res=>{
-            console.log(res);
-            this.remenList=res.data.data
-        })
+    components: {
+        LeftPost,RightPost
     }
 }
 </script>
@@ -73,69 +39,47 @@ export default {
     width:1000px;
     margin:0 auto;
     padding: 20px 0;
+    // 左边栏
     .menuBox{
         width: 260px;
         box-sizing: border-box;
-        // 热门城市
-        ul.leftul{
-            border-top: 1px solid #ddd;
-            border-left: 1px solid #ddd;
-            position: relative;
-            z-index: 2;
-            li{
-                height: 40px;
+    }
+    // 右边栏搜索框
+    .sosuoBox{
+        width: 700px;
+        // 搜索框
+        .sosuo_kuang{
+            width: 100%;
+            height: 40px;
+            line-height: 40px;
+            box-sizing: border-box;
+            border: 3px solid orange;
+            input{
+                flex: 1;
+                border: none;
+                outline: none;
                 padding: 0 20px;
+                background: none;
                 line-height: 40px;
-                border-right: 1px solid #ddd;
-                border-bottom: 1px solid #ddd;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                &.active{
-                    color: orange;
-                    border-right-color: #fff;
-                }
+            }
+            i{
+                font-size: 24px;
+                color: orange;
+                font-weight: 700;
+                margin-right: 10px;
             }
         }
-        .rightbox{
-            width: 350px;
-            height: 200px;
-            padding: 10px 20px;
-            background: #fff;
-            box-sizing: border-box;
-            border: 1px solid #ddd;
-            position: absolute;
-            top: 0;
-            left: 259px;
-            li{
-                font-size: 14px;
-                line-height: 36px;
-                i{
-                    font-size: 24px;
+        // 搜索推荐
+        .sosuo_tuijian{
+            color: #666;
+            padding: 10px 0;
+            font-size: 12px;
+            span{
+                margin-right: 5px;
+                a:hover{
                     color: orange;
-                    vertical-align: middle;
-                }
-                strong{
-                    margin: 0 10px;
-                    color: orange;
-                    font-weight: normal;
-                }
-                span{
-                    color: #999;
-                }
-                strong:hover,span:hover{
                     text-decoration: underline;
                 }
-            }
-        }
-
-        .tuijian{
-            margin-top: 20px;
-            h4{
-                font-weight: 400;
-                margin-bottom: 10px;
-                padding-bottom: 10px;
-                border-bottom: 1px solid #ddd;
             }
         }
     }

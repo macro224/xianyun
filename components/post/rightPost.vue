@@ -12,10 +12,10 @@
     <!-- 标题 -->
     <el-row class="title" type="flex" justify="space-between" align="middle">
         <h4>推荐攻略</h4>
-        <el-button type="primary"><i class="el-icon-edit"></i><span>写游记</span></el-button>
+        <el-button type="primary" @click="$router.push('/post/create')"><i class="el-icon-edit"></i><span>写游记</span></el-button>
     </el-row>
     <!-- 内容 -->
-    <div class="post_item" v-for="(item,index) in postComputed" :key="index">
+    <div class="post_item" @click="$router.push(`/post/detail?id=${item.id}`)" v-for="(item,index) in postComputed" :key="index">
         <!-- 多张图片 -->
         <div v-if="item.images.length>=3">
             <!-- 标题 -->

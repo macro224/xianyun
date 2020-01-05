@@ -40,7 +40,7 @@
             <span>x{{$store.state.air.users}}</span>
         </el-row>
         <el-row type="flex" justify="space-between" align="middle" class="info-bar">
-            <span @click="aaa">应付总额：</span>
+            <span>应付总额：</span>
             <span class="price">￥ {{$store.state.air.price}}</span>
         </el-row>           
     </div>
@@ -73,13 +73,7 @@ export default {
             // 得到相差时间
             return `${ Math.floor(dis / 60)}时${dis % 60}分`
         }
-    },
-
-    methods: {
-        aaa(){
-            console.log(this.data);
-        }
-    } 
+    }
 }
 </script>
 

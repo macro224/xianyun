@@ -21,9 +21,12 @@ export default {
   */
   loading: { color: '#fff' },
   /*
-  ** Global CSS
+  ** Global CSS import "quill/dist/quill.snow.css"
   */
   css: [
+    'quill/dist/quill.snow.css',
+    'quill/dist/quill.bubble.css',
+    'quill/dist/quill.core.css',
     'element-ui/lib/theme-chalk/index.css',
     'assets/main.css' // 新增自定义的页面过渡样式
   ],
@@ -31,9 +34,10 @@ export default {
   ** Plugins to load before mounting the App
   */
   plugins: [
-    '@/plugins/element-ui',
     '@/plugins/axios',
-    { src: '~/plugins/localStorage.js', ssr: false }
+    '@/plugins/element-ui',
+    { src: '~/plugins/localStorage.js', ssr: false },
+    { src: '~/plugins/vue-quill-editor.js', ssr: false }
   ],
   /*
   ** Nuxt.js dev-modules

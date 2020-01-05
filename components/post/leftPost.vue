@@ -17,11 +17,11 @@
         v-for="(item,index) in remenList" :key="index">
             <ul>
                 <li v-for="(info,i) in item.children" :key="i">
-                    <a href="#">
+                    <nuxt-link :to="`/post?city=${info.city}`">
                         <i>{{i+1}}</i>
                         <strong>{{info.city}}</strong>
                         <span>{{info.desc}}</span>
-                    </a>
+                    </nuxt-link>
                 </li>
             </ul>
         </div>

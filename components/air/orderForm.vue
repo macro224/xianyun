@@ -49,7 +49,7 @@
                     <el-form-item label="手机">
                         <el-input placeholder="请输入内容" v-model="contactPhone">
                             <template slot="append">
-                            <el-button @click="handleSendCaptcha">发送验证码</el-button>
+                            <el-button class="yanzhengbtn" @click="handleSendCaptcha" :disabled="ison">{{btninfo}}</el-button>
                             </template>
                         </el-input>
                     </el-form-item>
@@ -69,6 +69,8 @@
 export default {
     data () {
         return {
+            btninfo:'发送验证码',   //验证码按钮内容
+            ison:false, // 验证码按钮点击开关
             users:[{username:'',id:''}],//用户列表
             insurances:[],  //保险id
             contactName:'地球发动机', //联系人名字
@@ -97,6 +99,20 @@ export default {
         },
         // 发送手机验证码
         handleSendCaptcha(){
+            this.ison=!this.ison
+            this.btninfo=10
+            // 定义一个定时器
+            let yanzheng= setInterval(() => {
+                this.btninfo--
+                if(this.btninfo==0){
+                    // 清除定时器
+                    clearInterval(yanzheng)
+                    this.btninfo='发送验证码'
+                    this.ison=false
+                }
+            }, 666);
+
+
             this.$store.dispatch('user/captchas',this.contactPhone).then(res=>{
                 this.captcha=res
                 this.$message.success('本次验证码为：'+res)
@@ -107,6 +123,7 @@ export default {
             this.$message.success('订单提交成功，正在跳转到付款页')
             this.$axios({
                 url:'/airorders',
+                method:'POST',
                 data:{
                     users:this.users,
                     insurances:this.insurances,
@@ -121,8 +138,17 @@ export default {
                     Authorization:'Bearer '+this.$store.state.user.userInfo.token
                 }
             }).then(res=>{
-                // 跳转到付款页
-                this.$router.push({path: "/air/pay"});
+                if(res.data.message==='订单提交成功'){
+                    // 跳转到付款页
+                    this.$router.push({
+                        path: "/air/pay",
+                        query:{
+                            id:res.data.data.id
+                        }
+                    });
+                }else{
+                    this.$message.error('订单提交失败，请稍后再试~')
+                }
             })
         }
     },
@@ -144,6 +170,16 @@ export default {
             return '';
         }
     },
+    watch: {
+        users(){
+            this.$store.commit('air/userLength',this.users.length)
+        }  
+    },
+    mounted () {
+        setTimeout(() => {
+            this.$store.commit('air/userLength',this.users.length)
+        }, 1);
+    },
     props: {
         data:{
             type:Object,
@@ -154,6 +190,9 @@ export default {
 </script>
 
 <style scoped lang="less">
+    .yanzhengbtn{
+        width: 112px;
+    }
     .air-column{
         border-bottom:1px #ddd dashed;
         padding-bottom: 20px;   

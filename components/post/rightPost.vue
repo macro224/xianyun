@@ -1,5 +1,14 @@
 <template>
 <div class="rightPost">
+    <el-row class="sosuo_kuang" type="flex" justify="space-between" align="middle">
+        <input type="text" placeholder="请输入想去的地方，比如：'广州'" ref="sosuoInput">
+        <i class="el-icon-search" @click="sosuoClick"></i>
+    </el-row>
+    <div class="sosuo_tuijian">
+        推荐：
+        <span @click="tuijianClick(item)" v-for="(item,index) in ['广州','上海','北京']" :key="index">{{item}}</span>
+    </div>
+
     <!-- 标题 -->
     <el-row class="title" type="flex" justify="space-between" align="middle">
         <h4>推荐攻略</h4>
@@ -37,23 +46,28 @@
         </div>
         <!-- 一张图片 -->
         <el-row v-if="item.images.length<3" type="flex" justify="space-between">
+            <!-- 图片 -->
             <div class="post_item_cover">
                 <a href="#"><img :src="item.images[0]" alt=""></a>
             </div>
+            <!-- 内容 -->
             <div class="post_item_content">
-                <h4 class="post_item_title"><a href="#">塞班贵？一定是你的打开方式不对！6000块玩转塞班</a></h4>
-                <p class="post_item_desc"><a href="#">大家对塞班岛总存在着这样的误解，知道它是美属地盘，就理所当然地觉得这里的花费一定很高，花费高有高的玩法，那如果只有6000块的预算呢？要怎么玩？关于旅行这件事，我们要让钱花得更有道理，收下这份攻略，带你6000块花式玩转塞班。图：塞班岛。 by第5季旅游一、怎样用6000块玩转塞班？大多数出境游客人不做预算或最终花费远远超出预算，对预算的合理分配对控制我们旅行的花费就很重要了，如何只花6000块玩转塞班岛，对预算超支say no？下面从5个方面来为您一一解读：机票+酒店、岛上交通、玩乐项目、吃以及购买纪念品。1.怎样订机票+酒店性价比最高？机票和酒店的花销往往会占据我们旅行大半的花销，假设机票酒店为塞班行预算的一半，剩下的吃行玩购为预算的另一半，如果能在机票酒店这部分省下钱，也就意味着在塞班岛用来吃行玩购的钱就增加了怎样去塞班？可以转机也可以直飞，转机大多会从韩国转，提前蹲守能买到韩国飞塞班的特价机票，2000以下就能入手，加上国内飞韩国的机票来回塞班得5000+，还没算上在塞班的住宿费用，转机还有中途等待的时间，光花在路途上的时间就比直飞要多上一倍甚至更多，转乘奔波劳累，非联程票还要担心行李托运问题，所以建议大家有直飞还是尽量选择直飞。在酒店上，旅途中我们呆在酒店的时间远比在外游玩的时间少，酒店干净整洁基本就能满足我们休息的需求，塞班不是个享受酒店的地方而且还真不能跟国内星级酒店等位比较，所以不建议大家花过多的钱在塞班的酒店体验上。怎样在机票酒店上获得最高性价比的体验？ 直飞塞班的航班一般和酒店一起打包成机票+酒店套餐，价格要比单定机票、酒店要更加便捷实惠，往往3千多就能把机票和酒店一键搞定。</a></p>
+                <!-- 标题 -->
+                <h4 class="post_item_title"><a href="#">{{item.title}}</a></h4>
+                <!-- 文章 -->
+                <p class="post_item_desc"><a href="#">{{item.summary}}</a></p>
+                <!-- 说明 -->
                 <el-row class="post_item_info" type="flex" justify="space-between">
                     <el-row class="post_item_info_left" type="flex" justify="space-between" align="middle">
-                        <span><i class="el-icon-location-outline"></i> 北京市</span>
+                        <span><i class="el-icon-location-outline"></i> {{item.cityName}}</span>
                         <el-row class="post_user" type="flex" align="middle">
                             by 
                             <a href="#">
-                                <img :src="$axios.defaults.baseURL+'/assets/images/avatar.jpg'" alt="">
+                                <img :src="$axios.defaults.baseURL+item.account.defaultAvatar" alt="">
                             </a>
-                            <a href="#">地球发动机</a>
+                            <a href="#">{{item.account.nickname}}</a>
                         </el-row>
-                        <span><i class="el-icon-view"></i>12631</span>
+                        <span><i class="el-icon-view"></i> {{item.watch}}</span>
                     </el-row>
                     <div class="post_item_info_right">73 赞</div>
                 </el-row>
@@ -94,6 +108,33 @@ export default {
         }  
     },
     methods: {
+        // 点击搜索图案
+        sosuoClick(){
+            this.getPostList(this.$refs.sosuoInput.value)
+        },
+        // 点击推荐城市
+        tuijianClick(item){
+            this.getPostList(item)
+        },
+        // 封装获取文章列表的函数
+        getPostList(v){
+            if(v.trim()===''){
+                this.$axios({
+                    url:'/posts'
+                }).then(res=>{
+                    this.postList=res.data.data
+                })
+            }else{
+                this.$axios({
+                    url:'/posts',
+                    params:{
+                        city: v
+                    }
+                }).then(res=>{
+                    this.postList=res.data.data
+                })
+            }
+        },
         // 点击 N条/页时触发
         handleSizeChange(value){
             this.pageIndex=1
@@ -104,18 +145,56 @@ export default {
             this.pageIndex=value
         }
     },
+    watch: {
+        $route(){
+            this.getPostList(this.$route.query.city)
+        }  
+    },
+    // 获取文章列表
     mounted () {
-        this.$axios({
-            url:'/posts'
-        }).then(res=>{
-            this.postList=res.data.data
-        })
+        this.getPostList('')
     }
 }
 </script>
 
 <style lang="less" scoped>
 .rightPost{
+    // 搜索框
+    .sosuo_kuang{
+        width: 100%;
+        height: 40px;
+        line-height: 40px;
+        box-sizing: border-box;
+        border: 3px solid orange;
+        input{
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 0 20px;
+            background: none;
+            line-height: 40px;
+        }
+        i{
+            font-size: 24px;
+            color: orange;
+            font-weight: 700;
+            margin-right: 10px;
+        }
+    }
+    // 搜索推荐
+    .sosuo_tuijian{
+        color: #666;
+        padding: 10px 0;
+        font-size: 12px;
+        span{
+            cursor: pointer;
+            margin-right: 5px;
+            &:hover{
+                color: orange;
+                text-decoration: underline;
+            }
+        }
+    }
     // 标题
     .title{
         position: relative;

@@ -6,7 +6,6 @@
         justify="center" 
         align="middle" 
         class="main">
-
             <div class="form-wrapper">
                 <!-- 表单头部tab -->
                 <el-row type="flex" justify="center" class="tabs">
@@ -46,6 +45,11 @@ export default {
     },
     components: {
         LoginForm,ZhuceForm
+    },
+    mounted () {
+        if(this.$route.path==='/user/login'){
+            this.$store.commit('user/setUserInfo',{})
+        }
     }
 }
 </script>

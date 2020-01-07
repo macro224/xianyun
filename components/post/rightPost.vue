@@ -19,9 +19,9 @@
         <!-- 多张图片 -->
         <div v-if="item.images.length>=3">
             <!-- 标题 -->
-            <h4 class="post_item_title"><a href="#">{{item.title}}</a></h4>
+            <h4 class="post_item_title">{{item.title}}</h4>
             <!-- 文章 -->
-            <p class="post_item_desc"><a href="#">{{item.summary}}</a></p>
+            <p class="post_item_desc">{{item.summary}}</p>
             <!-- 图片 -->
             <el-row class="post_item_img" type="flex" justify="space-between">
                 <a href="#" v-for="(imglist,index) in item.images.slice(0,3)" :key="index">
@@ -223,19 +223,22 @@ export default {
         border-bottom: 1px solid #eee;
         // 标题栏
         .post_item_title{
+            cursor: pointer;
             font-size: 18px;
             font-weight: 400;
             margin-bottom: 15px;
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
-            a:hover{
+            &:hover{
                 color: orange;
             }
         }
         // 文章栏
         .post_item_desc{
             height: 63px;
+            color: #666;
+            cursor: pointer;
             font-size: 14px;
             line-height: 1.5;
             margin-bottom: 15px;
@@ -243,9 +246,6 @@ export default {
             display: -webkit-box;
             -webkit-line-clamp: 3;
             text-overflow: ellipsis;
-            a{
-                color: #666;
-            }
         }
         // 图片栏
         .post_item_img{

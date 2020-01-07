@@ -175,9 +175,6 @@ export default {
             })
             this.$store.commit('air/setLishi',this.form)
         }
-    },
-    mounted() {
-       
     }
 }
 </script>

@@ -13,7 +13,7 @@
 
                 <!-- 富文本编辑器 -->
                 <el-form-item>
-                    <div class="quill-editor" ref="quill" v-quill:myQuillEditor="editorOption" :content="form.content"></div>
+                    <VueEditor class="quill-editor" ref="VueEditor" :config="config" />
                 </el-form-item>
 
                 <el-form-item label="城市名称"  label-width="80px">
@@ -35,6 +35,9 @@
 
 <script>
 import CaogaoCreate from '@/components/post/caogaoCreate'
+import "quill/dist/quill.snow.css"
+import VueEditor from 'vue-word-editor'
+
 
 export default {
     data () {
@@ -44,25 +47,34 @@ export default {
                 city:'',
                 content:''
             },
-            editorOption: {
-                // some quill options
-                placeholder: "",
+            config: {
+                // 上传图片的配置
+                uploadImage: {
+                    url: "http://localhost:1337/upload",
+                    name: "files",
+                    // res是结果，insert方法会把内容注入到编辑器中，res.data.url是资源地址
+                    uploadSuccess(res, insert){
+                        insert("http://localhost:1337" + res.data[0].url)
+                    }
+                },
+                // 配置功能 没这个配置则显示全部功能
                 modules: {
                     toolbar: [
                         ['bold', 'italic', 'underline', 'strike'],
-                        ['image','video']
+                        ['image'],
+                        // ['video'] //视频的配置
                     ]
                 }
             }
         }
     },
     components: {
-        CaogaoCreate
+        CaogaoCreate,VueEditor
     },
     methods: {
         // 发表攻略
         fabiao(){
-            // console.dir(this.$refs.quill.innerText);
+            // console.log(this.$refs.VueEditor.editor.root.innerHTML);
             let {title,city}=this.form
             this.$axios({
                 url:'/posts',
@@ -72,38 +84,50 @@ export default {
                 },
                 data:{
                     title,city,
-                    content:this.$refs.quill.innerText
+                    content:this.$refs.VueEditor.editor.root.innerHTML
                 }
             }).then(res=>{
                 console.log(res);
                 if(res.data.message==='新增成功'){
                     this.$message.success('发表成功~')
-                    this.$store.commit('post/setCreate', res.data.data)
                     // 跳转页面
                     this.$router.push('/post')
                 }
             })
-            
         },
-        // 存为草稿
+        // 点击草稿填充到页面输入框中
         caogao(item){
             this.form.title=item.title;
             this.form.city=item.cityName
-            this.form.content=item.content
+            this.$refs.VueEditor.editor.root.innerHTML=item.content
         },
-        // 保存为草稿
+        // 点击保存为草稿
         baocunCaogao(){
+            let data = new Date();
+            let yue=data.getMonth() + 1
+            let ri=data.getDate()
+            let shi=data.getHours()
+            let miao=data.getSeconds()
+            let fen=data.getMinutes()
+            if(yue<10) yue='0'+yue
+            if(ri<10) ri='0'+ri
+            if(shi<10) shi='0'+shi
+            if(miao<10) miao='0'+miao
+            if(fen<10) fen='0'+fen
+            let time=data.getFullYear() + '-' + yue + '-' + ri + ' ' + ' ' + shi + ':' + miao + ':' + fen
             this.$store.commit('post/setCreate', 
                 {
                     title:this.form.title,
                     cityName:this.form.city,
-                    content:this.form.content,
-                    city:{created_at:'2020-06-06 16:16:16'}
+                    content:this.$refs.VueEditor.editor.root.innerHTML,
+                    city:{
+                        created_at:time
+                    }
                 }
             )
+            this.$message.success('保存成功~')
         }
     }
-
 }
 </script>
 

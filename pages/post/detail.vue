@@ -41,6 +41,10 @@
             <div class="comment">
                 <!-- 标题 -->
                 <h4>评论</h4>
+                <!-- 回复@ -->
+                <el-tag v-show='isshow' closable type="info" style="margin-bottom: 10px;"  @close="handleClose">
+                    回复 @{{replyTxt}}
+                </el-tag>
                 <!-- 输入框 -->
                 <div class="comment-input">
                     <el-input type="textarea" :rows="2" placeholder="请输入内容" v-model="content" resize='none'>
@@ -75,6 +79,9 @@
                         </div>
                         <!-- 评论内容、图片 -->
                         <div class="comment-content">
+                            <!-- 二级评论 -->
+                            <Comment v-if="item.parent" :comment="item.parent" />
+                            <!-- 一级评论 -->
                             <div class="comment-new">
                                 <p class="comment-message">{{item.content}}</p>
                                 <el-row type="flex">
@@ -83,13 +90,13 @@
                                     </div>
                                 </el-row>
                                 <div class="comment-ctrl">
-                                    <span>回复</span>
+                                    <span @click="reply(item)">回复</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- 分页 -->
                 <el-pagination
                     @size-change="handleSizeChange"
@@ -123,6 +130,8 @@
 </template>
 
 <script>
+import Comment from '@/components/post/comment'
+
 export default {
     data () {
         return {
@@ -138,38 +147,31 @@ export default {
             pics:[],
             // 分页数据
             pageIndex:1,
-            pageSize:2
+            pageSize:2,
+            // 回复数据
+            isshow:false,
+            replyTxt:'',
+            replyid:''
         }
     },
     methods: {
         // 图片上传成功回调
         coverSuccess (response, file, fileList) {
-            console.log(response);
+            // console.log(response);
             this.pics.push(response[0])
             // console.log(file);
             // console.log(fileList);
         },
         // 提交评论
         tijiao(){
-            this.$axios({
-                url:'/comments',
-                method:'POST',
-                data:{
-                    pics:this.pics,
-                    content:this.content,
-                    post:this.$route.query.id
-                },
-                headers:{
-                    Authorization:'Bearer '+this.$store.state.user.userInfo.token,
-                    'Content-Type':'application/json;charset=UTF-8'
-                },
-            }).then(res=>{
-                if(res.data.message==='提交成功'){
-                    this.$message.success('评论成功~')
-                    this.getComments()
-                }
-            })
-            
+            // isshow为true的时候说明是在回复
+            if(this.isshow==true){
+                this.content=''
+                this.isshow=false
+                this.setComment('评论成功~',this.replyid)
+            }else{
+                this.setComment('评论成功~')
+            }
         },
         // 封装一个获取评论列表的函数
         getComments(){
@@ -180,6 +182,28 @@ export default {
                 this.comments=res.data.data
             })
         },
+        // 封装一个提交评论的函数
+        setComment(msg,id){
+            this.$axios({
+                url:'/comments',
+                method:'POST',
+                data:{
+                    pics:this.pics,
+                    content:this.content,
+                    post:this.$route.query.id,
+                    follow:id
+                },
+                headers:{
+                    Authorization:'Bearer '+this.$store.state.user.userInfo.token,
+                    'Content-Type':'application/json;charset=UTF-8'
+                },
+            }).then(res=>{
+                if(res.data.message==='提交成功'){
+                    this.$message.success(msg)
+                    this.getComments()
+                }
+            })
+        },
         // 选择 N/页 时触发
         handleSizeChange(value){
             this.pageIndex=1;
@@ -188,6 +212,17 @@ export default {
         // 点击 页码 时触发
         handleCurrentChange(value){
             this.pageIndex=value
+        },
+        // 回复
+        reply(item){
+            this.isshow=true
+            this.replyid=item.id
+            this.replyTxt=item.account.nickname
+            // 点击调到输入框的位置
+            document.documentElement.scrollTop = document.body.scrollTop = window.pageYOffset=1917
+        },
+        handleClose(){
+            this.isshow=false
         }
     },
     // 计算属性制作分页功能
@@ -213,6 +248,9 @@ export default {
         })
         // 获取文章列表
         this.getComments()
+    },
+    components: {
+        Comment
     }
 
 }

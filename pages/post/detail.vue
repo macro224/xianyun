@@ -3,6 +3,7 @@
     <el-row type="flex" justify="space-between">
         <!-- 左边栏 -->
         <div class="detailLeft">
+            <!-- 面包屑 -->
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item :to="{ path: '/post' }">旅游攻略</el-breadcrumb-item>
                 <el-breadcrumb-item>攻略详情</el-breadcrumb-item>
@@ -17,26 +18,7 @@
             <!-- 内容 -->
             <div class="detailContent" v-html="wenzhang.content"></div>
             <!-- 评论，收藏，分享，点赞 -->
-            <div class="post-ctrl">
-                <el-row type="flex" justify="center">
-                    <div class="ctrl-item">
-                        <i class="iconfont iconpinglun"></i>
-                        <p>评论(100)</p>
-                    </div>
-                    <div class="ctrl-item">
-                        <i class="iconfont iconstar1"></i>
-                        <p>收藏</p>
-                    </div>
-                    <div class="ctrl-item">
-                        <i class="iconfont iconfenxiang"></i>
-                        <p>分享</p>
-                    </div>
-                    <div class="ctrl-item">
-                        <i class="iconfont iconding"></i>
-                        <p>点赞({{wenzhang.like||0}})</p>
-                    </div>
-                </el-row>
-            </div>
+            <CcslPost :wenzhang="wenzhang" />
             <!-- 评论列表 -->
             <div class="comment">
                 <!-- 标题 -->
@@ -54,7 +36,7 @@
                 <el-row type="flex" justify="space-between">
                     <div>
                         <!-- 图片上传 :headers="{Authorization:'Bearer '+this.$store.state.user.userInfo.token}" -->
-                        <el-upload action="http://127.0.0.1:1337/upload" list-type="picture-card" :on-success="coverSuccess" name="files" >
+                        <el-upload ref="upload" action="http://127.0.0.1:1337/upload" list-type="picture-card" :on-success="coverSuccess" name="files" >
                             <i class="el-icon-plus"></i>
                         </el-upload>
                         <!-- 图片预览 -->
@@ -70,6 +52,8 @@
                 <!-- 评论列表 -->
                 <div class="comment-list">
                     <div class="comment-item" v-for="(item,index) in dataList" :key="index">
+                        <!-- 二级评论 -->
+                        <Comment v-if="item.parent" :comment="item.parent" @parentComment="reply" />
                         <!-- 评论人信息 -->
                         <div class="comment-info">
                             <img :src="$axios.defaults.baseURL+item.account.defaultAvatar" alt="">
@@ -79,8 +63,6 @@
                         </div>
                         <!-- 评论内容、图片 -->
                         <div class="comment-content">
-                            <!-- 二级评论 -->
-                            <Comment v-if="item.parent" :comment="item.parent" />
                             <!-- 一级评论 -->
                             <div class="comment-new">
                                 <p class="comment-message">{{item.content}}</p>
@@ -131,14 +113,15 @@
 
 <script>
 import Comment from '@/components/post/comment'
+import CcslPost from '@/components/post/ccslPost'
 
 export default {
     data () {
         return {
-            // 文章信息
-            wenzhang:{city:{}},
             dialogImageUrl: '',
             dialogVisible: false,
+            // 文章信息
+            wenzhang:{city:{},comments:{}},
             // 评论列表
             comments:'',
             // 提交评论时的内容参数
@@ -166,18 +149,28 @@ export default {
         tijiao(){
             // isshow为true的时候说明是在回复
             if(this.isshow==true){
+                this.setComment('回复成功~',this.replyid)
                 this.content=''
+                this.pageIndex=1
                 this.isshow=false
-                this.setComment('评论成功~',this.replyid)
+                // 评论发表后清空照片墙
+                this.$refs.upload.clearFiles()
             }else{
                 this.setComment('评论成功~')
+                this.content=''
+                this.pageIndex=1
+                // 评论发表后清空照片墙
+                this.$refs.upload.clearFiles()
             }
         },
         // 封装一个获取评论列表的函数
         getComments(){
             // 获取文章列表
             this.$axios({
-                url:'/posts/comments'
+                url:'/posts/comments',
+                params:{
+                    post:this.$route.query.id
+                }
             }).then(res=>{
                 this.comments=res.data.data
             })
@@ -221,6 +214,7 @@ export default {
             // 点击调到输入框的位置
             document.documentElement.scrollTop = document.body.scrollTop = window.pageYOffset=1917
         },
+        // 点击关闭标签
         handleClose(){
             this.isshow=false
         }
@@ -245,12 +239,14 @@ export default {
             this.wenzhang=res.data.data.filter(v=>{
                 return v.id==this.$route.query.id
             })[0]
+            console.log(this.wenzhang);
+            
         })
         // 获取文章列表
         this.getComments()
     },
     components: {
-        Comment
+        Comment,CcslPost
     }
 
 }
@@ -283,25 +279,7 @@ export default {
             }
         }
         // 收藏点赞
-        .post-ctrl{
-            padding: 50px 0 30px;
-            .ctrl-item{
-                margin: 0 20px;
-                font-size: 20px;
-                cursor: pointer;
-                text-align: center;
-                i{
-                    display: block;
-                    font-size: 28px;
-                    color: orange;
-                }
-                p{
-                    color: #999;
-                    margin-top: 5px;
-                    font-size: 14px;
-                }
-            }
-        }
+
         // 评论列表
         .comment{
             margin-bottom: 20px;

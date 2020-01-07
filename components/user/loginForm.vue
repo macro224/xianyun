@@ -52,8 +52,8 @@ export default {
         return {
             // 表单数据
             form: {
-                username:'13800138000',
-                password:'123456'
+                username:'13666666666',
+                password:'000000'
             },
             // 表单规则
             rules: {

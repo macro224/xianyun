@@ -2,6 +2,8 @@
     <div class="comment-floor">
         <div class="comment-list">
             <div class="comment-item">
+                <!-- 评论组件递归 -->
+                <mycomment :comment="comment.parent" @parentComment="fashe" v-if="comment.parent" />
                 <!-- 评论人信息 -->
                 <div class="comment-info">
                     <img :src="$axios.defaults.baseURL+comment.account.defaultAvatar" alt="">
@@ -19,7 +21,7 @@
                             </div>
                         </el-row>
                         <div class="comment-ctrl">
-                            <span>回复</span>
+                            <span @click="fashe(comment)">回复</span>
                         </div>
                     </div>
                 </div>
@@ -30,14 +32,17 @@
 
 <script>
 export default {
+    name:'mycomment',
     props: {
         comment:{
             type:Object,
             default:{}
         }
     },
-    mounted () {
-        
+    methods: {
+        fashe(comment){
+            this.$emit('parentComment',comment)
+        }
     }
 }
 </script>
